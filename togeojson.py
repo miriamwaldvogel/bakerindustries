@@ -2,16 +2,11 @@ import json
 import csv
 
 def add_attributes_to_geojson(geojson_file, csv_file):
-    # Read the GeoJSON file
     with open(geojson_file, 'r') as file:
         geojson_data = json.load(file)
-
-    # Read the CSV file
     with open(csv_file, 'r') as file:
         reader = csv.reader(file)
         csv_data = list(reader)
-
-    # Get the header row from the CSV file (years)
     years = csv_data[0][1:]
 
     # Create a dictionary to store the frequency values for each ZIP code and year
@@ -23,7 +18,7 @@ def add_attributes_to_geojson(geojson_file, csv_file):
 
     # Iterate through the features in the GeoJSON and add attributes
     for feature in geojson_data['features']:
-        zipcode = feature['properties']['ZCTA5CE10']
+        zipcode = str(feature['properties']['ZCTA5CE10'])
         if zipcode in frequency_data:
             frequencies = frequency_data[zipcode]
             feature['properties'].update(frequencies)

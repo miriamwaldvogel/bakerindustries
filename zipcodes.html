@@ -12,22 +12,14 @@ body { margin: 0; padding: 0; }
 </style>
 </head>
 <body>
-<div id="map"></div>
+    <div id="map"></div>
 <script>
 	mapboxgl.accessToken = 'pk.eyJ1IjoibWlyaWFtd2FsZHZvZ2VsIiwiYSI6ImNraTE3OHBxbDE3aWcycW9kbnhibHY2cDUifQ.ANw8-FHVLnsxyvEYyCyhvA';
     const map = new mapboxgl.Map({
         container: 'map', // container ID
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/mapbox/streets-v12', // style URL
-        center: [-75.2, 39.95], // starting position [lng, lat]
-        zoom: 9 // starting zoom
+        style: 'mapbox://styles/v1/miriamwaldvogel/cljd9t8kd002r01ozfmrn8qpo.html?title=view&access_token=pk.eyJ1IjoibWlyaWFtd2FsZHZvZ2VsIiwiYSI6ImNraTE3OHBxbDE3aWcycW9kbnhibHY2cDUifQ.ANw8-FHVLnsxyvEYyCyhvA&zoomwheel=true&fresh=true#9.78/39.9649/-75.2296'
     });
-    map.on('load', ()=>{
-        map.addSource('ZIP codes', {
-            type: 'geojson',
-            data: 'Participant ZIP Codes.geoJSON'
-});
-    })
 </script>
 
 </body>
