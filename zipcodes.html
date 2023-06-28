@@ -65,21 +65,26 @@
         return(this.value);
     }
     const sliderstops = [
-        [0, '#FFFFFF'],
-        [2, '#718A9A'],
-        [5, '#557386'],
-        [10, '#395C72'],
-        [20, '#1C445E'],
-        [30, '#013152'],
-        [40, '#002D4A']
+        [0, '#fff'],
+        [1, '#DEE0E2'],
+        [3, '#8FADC1'],
+        [6, '#A4DBFF'],
+        [11, '#0EDBF6'],
+        [21, '#3FAFFA'],
+        [31, '#205C84'],
+        [41, '#000c14']
     ];
     const legend = document.getElementById("legend");
     for (const [i, sliderstop] of sliderstops.entries()) {
         const swatch = document.createElement('div');
-        if (i > 0) {
-            swatch.innerHTML = (sliderstops[i-1][0]+1).toString() + "–" + sliderstop[0].toString();
-        } else{
-            swatch.innerHTML = sliderstop[0];
+        if (i > 0 && i < sliderstops.length-1) {
+            swatch.innerHTML = sliderstop[0].toString() + "–" + (sliderstops[i+1][0]-1).toString();
+        } else {
+            if (i == sliderstops.length-1){
+                swatch.innerHTML = sliderstop[0].toString()+"+";
+            } else{
+                swatch.innerHTML = sliderstop[0];
+            }
         }
         swatch.classList.add("swatch");
         const colorblock = document.createElement('div');
