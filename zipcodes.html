@@ -2,24 +2,198 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Display a map on a webpage</title>
+<title>Baker Industries - Map of Participant ZIP codes</title>
 <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    body { 
+        margin: 20; 
+        padding: 0; 
+    }
+    #map { 
+        position: absolute; 
+        top: 0; 
+        bottom: 0; 
+        width: 100%; 
+    }
+    #legendcontainer {
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        position: absolute;
+        left: 10px;
+        z-index: 1;
+        border: 2px solid #000;
+    }
+    .swatch {
+        width: 100px;
+    }
+    .colorblock {
+        float: right;
+        width: 10px;
+        height: 10px;
+        margin: 2px;
+    }
+    .zipdiv-popup{
+        font-weight: bold;
+    }
+    .popup-year{
+        text-decoration: underline;
+    }
 </style>
 </head>
 <body>
     <div id="map"></div>
+    <div id="legendcontainer">
+        <div id="inputcontainer">
+            <input type="range" min="2016" max="2023" id="year-input" value="2023">
+            <div>
+                Year: <b id="input-text"></b>
+            </div>
+        </div>
+        Number of participants:
+        <div id="legend"></div>
+    </div>
 <script>
+    const slider = document.getElementById("year-input");
+    var slidertext = document.getElementById("input-text");
+    slidertext.innerHTML = slider.value;
+    slider.oninput = function(){
+        slidertext.innerHTML = this.value;
+        return(this.value);
+    }
+    const sliderstops = [
+        [0, '#FFFFFF'],
+        [2, '#718A9A'],
+        [5, '#557386'],
+        [10, '#395C72'],
+        [20, '#1C445E'],
+        [30, '#013152'],
+        [40, '#002D4A']
+    ];
+    const legend = document.getElementById("legend");
+    for (const [i, sliderstop] of sliderstops.entries()) {
+        const swatch = document.createElement('div');
+        if (i > 0) {
+            swatch.innerHTML = (sliderstops[i-1][0]+1).toString() + "–" + sliderstop[0].toString();
+        } else{
+            swatch.innerHTML = sliderstop[0];
+        }
+        swatch.classList.add("swatch");
+        const colorblock = document.createElement('div');
+        colorblock.classList.add("colorblock");
+        colorblock.style.backgroundColor = sliderstop[1];
+        swatch.appendChild(colorblock);
+        legend.appendChild(swatch);
+    }
+    const years = ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"];
 	mapboxgl.accessToken = 'pk.eyJ1IjoibWlyaWFtd2FsZHZvZ2VsIiwiYSI6ImNraTE3OHBxbDE3aWcycW9kbnhibHY2cDUifQ.ANw8-FHVLnsxyvEYyCyhvA';
     const map = new mapboxgl.Map({
-        container: 'map', // container ID
-        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: 'mapbox://styles/v1/miriamwaldvogel/cljd9t8kd002r01ozfmrn8qpo.html?title=view&access_token=pk.eyJ1IjoibWlyaWFtd2FsZHZvZ2VsIiwiYSI6ImNraTE3OHBxbDE3aWcycW9kbnhibHY2cDUifQ.ANw8-FHVLnsxyvEYyCyhvA&zoomwheel=true&fresh=true#9.78/39.9649/-75.2296'
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-75.3, 39.98],
+        zoom: 10
     });
+    map.on('load', () => {
+        map.addSource('ZIP codes', {
+            type: 'geojson',
+            data: 'Participant ZIP codes.geojson'
+        });
+        map.addLayer({
+            'id': 'ZIP code fill',
+            'type': 'fill',
+            'source': 'ZIP codes',
+            'paint': {
+                'fill-color': {
+                    property: slider.value.toString(),
+                    stops: sliderstops
+                },
+                'fill-opacity': 0.8
+            }
+        });
+        map.addLayer({
+            'id': 'ZIP code outline',
+            'type': 'line',
+            'source': 'ZIP codes',
+            'paint': {
+                'line-color': '#000000'
+            }
+        })
+        map.addSource('bakerlocations', {
+            'type': 'geojson',
+            'data': {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                    "type": "Feature",
+                    "properties": {
+                        'title': 'I Street'
+                    },
+                    "geometry": {
+                        "coordinates": [
+                        -75.10992647014763,
+                        40.004221187600905
+                        ],
+                        "type": "Point"
+                    }
+                    },
+                    {
+                    "type": "Feature",
+                    "properties": {
+                        'title': 'Malvern'
+                    },
+                    "geometry": {
+                        "coordinates": [
+                        -75.52082681717427,
+                        40.03634317533019
+                        ],
+                        "type": "Point"
+                    }
+                    }
+                ]
+                }
+        })
+        map.loadImage('blue-icon.png', (error, image) => {
+            if (error) throw error;
+            map.addImage('blue-icon', image);
+        })
+        map.addLayer({
+            'id': 'bakerlocations',
+            'type': 'symbol',
+            'source': 'bakerlocations',
+            'layout': {
+                'icon-image': 'blue-icon',
+                'text-field': ['get', 'title'],
+                'text-font': [
+                'Open Sans Semibold',
+                'Arial Unicode MS Bold'
+                ],
+                'text-anchor': 'top'
+            }
+        })
+    });
+    slider.addEventListener('change', () => {
+        map.setPaintProperty('ZIP code fill', 'fill-color', {
+            property: slider.value.toString(),
+            stops: sliderstops
+        });
+    })
+    map.on('click', 'ZIP code fill', e => {
+        const coordinates = e.lngLat;
+        const popupcontent = document.createElement('div');
+        const zipcode = document.createElement('div');
+        zipcode.innerHTML = +e.features[0].properties.ZCTA5CE10;
+        zipcode.classList.add("zipdiv-popup");
+        popupcontent.appendChild(zipcode);
+        for (const year of years) {
+            const line = document.createElement('div');
+            line.innerHTML = year + ": " + e.features[0].properties[year];
+            popupcontent.appendChild(line);
+        }
+        new mapboxgl.Popup().setLngLat(coordinates).setDOMContent(popupcontent).addTo(map);
+    })
 </script>
 
 </body>
